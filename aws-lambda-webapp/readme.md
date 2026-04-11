@@ -1,24 +1,45 @@
 
 
-🚀 Built a Serverless Image Optimizer with AWS Lambda + S3 
-
- Upload an image to S3 → Lambda compresses it → Optimized version appears.
-Fully serverless, beginner-friendly, and no surprise AWS bills.
+🚀  Serverless Image Optimizer with AWS Lambda & S3 :
 
 
-Whether you’re learning AWS, building portfolio projects, or automating real-world workflows — this one’s for you.
+# 🛠️ Tech Stack:
 
-⚙️ What I Built:
-Whenever you upload an image to a specific S3 bucket, it automatically triggers a Lambda function which:
-
-1. Reads the image
-2. Compresses it using Pillow (Python image library)
-3. Saves an optimized version back to the bucket with the prefix optimized
-This is all done in a serverless fashion — no EC2, no containers, no headache.
-
-🛠️ Tech Stack
-AWS Lambda — Python 3.11 runtime function to handle the image compression
+AWS Lambda — Python 3.11 function to handle the image compression
 Amazon S3 — Triggers Lambda on image uploads
 IAM Roles — To grant minimal and secure permissions
 Pillow — For optimizing images in Python
-Shell Scripts — To deploy and clean up resources easily
+
+
+# Shell Scripts — To deploy and clean up resources easily
+
+
+## 📁 Project Structure
+serverless-image-optimizer/
+├── lambda/
+│   └── handler.py             # Main Lambda code
+├── deploy/
+│   ├── create_resources.sh    # Setup script
+│   ├── delete_resources.sh    # Teardown script
+│   └── trust-policy.json      # IAM trust policy
+├── test-images/               # Sample images
+├── requirements.txt           # Pillow dependency
+└── README.md
+🚀 How It Works
+Upload an image (.jpg, .png) to your S3 bucket.
+Lambda automatically gets triggered.
+It compresses and saves the new image as optimized-filename.jpg.
+Simple. Fast. Scalable. Free-tier friendly.
+🧯 Avoiding AWS Charges
+Cloud costs can creep up if you’re not careful. This project is:
+
+✅ 100% AWS Free Tier compatible
+✅ No long-running services (like EC2)
+✅ Includes a delete_resources.sh teardown script
+Run this when you’re done:
+
+bash deploy/delete_resources.sh
+
+
+
+

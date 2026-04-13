@@ -1,0 +1,94 @@
+## AWS MQ  Integration With Lambda
+
+One of the most common and powerful integrations is connecting Amazon MQ to AWS Lambda.
+  This allows your serverless Lambda functions to automatically trigger and process messages as soon as they arrive in your ActiveMQ or RabbitMQ queues.
+
+Steps:
+
+🛠️ Integrating Amazon MQ with AWS Lambda
+Prerequisites: You already have an Amazon MQ broker (ActiveMQ or RabbitMQ) running in a VPC.
+
+Step 1: Secure Your Broker Credentials
+AWS Lambda needs to authenticate with your MQ broker to read messages. Hardcoding passwords is a bad practice, so we will use AWS Secrets Manager.
+
+Navigate to the AWS Secrets Manager console.
+
+Click Store a new secret.
+
+Choose Other type of secret.
+
+In the Key/Value pairs, enter your broker credentials:
+
+Key: username | Value: your-mq-username
+
+Key: password | Value: your-mq-password
+
+Click Next, name your secret (e.g., mq-broker-credentials), and save it.
+
+UI Path: AWS Console ➡️ Secrets Manager ➡️ Store a new secret ➡️ Other type of secret
+
+Step 2: Create the Lambda Function
+Now, create the function that will process the messages.
+
+Navigate to the AWS Lambda console.
+
+Click Create function.
+
+Select Author from scratch.
+
+Name your function (e.g., ProcessMQMessages).
+
+Choose your preferred runtime (e.g., Python 3.10 or Node.js 18.x).
+
+Under Advanced settings, select the VPC, Subnets, and Security Groups that your Amazon MQ broker is using. (Lambda must be in the same network to reach the broker).
+
+Click Create function.
+
+UI Path: AWS Console ➡️ Lambda ➡️ Create function ➡️ Author from scratch ➡️ Advanced settings (VPC)
+
+Step 3: Grant IAM Permissions to Lambda
+Your Lambda function needs permission to read from Secrets Manager, connect to the VPC, and interact with Amazon MQ.
+
+In your new Lambda function dashboard, go to the Configuration tab.
+
+Click on Permissions, then click the Role name to open IAM.
+
+Attach the following AWS managed policies to the role:
+
+AWSLambdaSQSQueueExecutionRole (Provides basic VPC execution rights)
+
+AWSLambdaMQExecutionRole (Provides rights to describe the MQ broker)
+
+Add an inline policy granting secretsmanager:GetSecretValue for the secret you created in Step 1.
+
+UI Path: Lambda Console ➡️ Configuration ➡️ Permissions ➡️ Execution role ➡️ Add permissions
+
+Step 4: Add Amazon MQ as a Trigger:
+ You will tell Lambda to listen to your MQ broker.
+
+Go back to your Lambda function dashboard.
+
+In the "Function overview" visual designer at the top, click + Add trigger.
+
+In the trigger configuration dropdown, search for and select MQ.
+
+Fill in the configuration details:
+
+Broker: Select your Amazon MQ broker from the dropdown.
+
+Batch size: Enter 10 (the number of messages Lambda will process at once).
+
+Queue name: Enter the exact name of the queue you want to listen to (e.g., OrderQueue).
+
+Source access configuration: Click "Add", select Basic Auth, and choose the Secrets Manager secret you created in Step 1.
+
+Click Add.
+
+UI Path: Lambda Console ➡️ Function overview ➡️ + Add trigger ➡️ Select MQ ➡️ Configure Batch, Queue, and Secrets
+
+Step 5: Verify the Integration
+Once the trigger is added, its status will briefly show as Creating and then switch to Enabled.
+
+Whenever a message is pushed to your ActiveMQ or RabbitMQ OrderQueue
+  AWS will automatically spin up your Lambda function,
+  pass the message payload in the event object, and execute your code.
